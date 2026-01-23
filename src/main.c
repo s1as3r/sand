@@ -8,7 +8,7 @@
 // clang-format on
 
 #define NUM_COLORS 5
-#define MAX_BRUSH_RADIUS 15
+#define MAX_BRUSH_RADIUS 20
 
 // clang-format off
 global const Color g_colors[NUM_COLORS] = {
@@ -146,8 +146,7 @@ void update_grid(Grid *grid) {
       // avoid the issues with cells right on top of each other. if we check the
       // read buffer, it would try to move the cell diagonally which we dont
       // want.
-      if (cell_at(grid->write, grid->nx, x, y + 1)->state ==
-          CELL_STATE_EMPTY) {
+      if (cell_at(grid->write, grid->nx, x, y + 1)->state == CELL_STATE_EMPTY) {
         *cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
         *cell_at(grid->write, grid->nx, x, y + 1) = cell;
         continue;
