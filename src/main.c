@@ -148,9 +148,15 @@ void update_grid(Grid *grid) {
         continue;
       }
 
-      if (get_cell(grid, x, y + 1).state == CELL_STATE_EMPTY) {
-        set_cell(grid, x, y, g_empty_cell);
-        set_cell(grid, x, y + 1, cell);
+      // insted of checking the cell in the read buffer, we check it in the
+      // write buffer since it will already be processsed. we basically want to
+      // avoid the issues with cells right on top of each other. if we check the
+      // read buffer, it would try to move the cell diagonally which we dont
+      // want.
+      if (_cell_at(grid->write, grid->nx, x, y + 1)->state ==
+          CELL_STATE_EMPTY) {
+        *_cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
+        *_cell_at(grid->write, grid->nx, x, y + 1) = cell;
         continue;
       }
 
