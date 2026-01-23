@@ -8,6 +8,8 @@
 // clang-format on
 
 #define NUM_COLORS 5
+#define MAX_BRUSH_RADIUS 15
+
 // clang-format off
 global const Color g_colors[NUM_COLORS] = {
   {  0, 228,  48, 255},
@@ -172,14 +174,14 @@ i32 main(void) {
   InitWindow(window_width, window_height, "fallingsand");
   SetExitKey(KEY_ESCAPE);
   i32 cell_h = 2, cell_w = 2;
-  i32 action_radius = 6;
+  i32 brush_radius = 6;
 
   // clang-format off
   #if defined(PLATFORM_WEB)
     SetTargetFPS(60);
     cell_h = 4;
     cell_w = 4;
-    action_radius = 3;
+    brush_radius = 3;
   #else
     SetTargetFPS(240);
   #endif
@@ -190,7 +192,7 @@ i32 main(void) {
   Grid grid = new_grid(nx, ny, cell_w, cell_h);
   u32 color_idx = 0;
   TraceLog(LOG_INFO, "[init] nx: %d | ny: %d | w: %d | h: %d | ar: %d", nx, ny,
-           cell_w, cell_h, action_radius);
+           cell_w, cell_h, brush_radius);
 
   Cell *temp;
   Color *pixels = malloc((u32)nx * (u32)ny * sizeof(Color));
@@ -212,13 +214,21 @@ i32 main(void) {
     if (IsKeyPressed(KEY_SPACE)) {
       color_idx = (color_idx + 1) % NUM_COLORS;
     }
+
     if (IsKeyPressed(KEY_P)) {
       pause_update = !pause_update;
     }
 
+    if (IsKeyPressed(KEY_RIGHT) && brush_radius < MAX_BRUSH_RADIUS) {
+      brush_radius++;
+    }
+    if (IsKeyPressed(KEY_LEFT) && brush_radius > 0) {
+      brush_radius--;
+    }
+
     memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
 
-    act_on_grid(&grid, action_radius, color_idx);
+    act_on_grid(&grid, brush_radius, color_idx);
     if (!pause_update) {
       update_grid(&grid);
     }
@@ -235,6 +245,9 @@ i32 main(void) {
       DrawTexturePro(texture, source_rect, dest_rect, (Vector2){0, 0}, 0,
                      WHITE);
       DrawFPS(10, 10);
+      DrawText(TextFormat("br: %d %s", brush_radius,
+                          pause_update ? "| updates paused" : ""),
+               10, 30, 20, WHITE);
     }
     EndDrawing();
   }
