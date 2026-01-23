@@ -47,15 +47,14 @@ typedef struct {
   Cell *write;
   Cell *read;
   i32 nx, ny;
-  i32 w, h;
 } Grid;
 
 inline Cell *cell_at(Cell *cells, i32 nx, i32 x, i32 y) {
   return (cells + (y * nx) + x);
 }
 
-Grid new_grid(i32 nx, i32 ny, i32 w, i32 h) {
-  Grid grid = {.nx = nx, .ny = ny, .h = h, .w = w};
+Grid new_grid(i32 nx, i32 ny) {
+  Grid grid = {.nx = nx, .ny = ny};
   u32 n_bytes = sizeof(Cell) * (u32)nx * (u32)ny;
   grid.read = malloc(n_bytes);
   grid.write = malloc(n_bytes);
@@ -85,12 +84,8 @@ void draw_grid(Color *pixels, Grid *grid) {
   }
 }
 
-void act_on_grid(Grid *grid, i32 radius, u32 current_color) {
-  i32 center_x = GetMouseX() / grid->w;
-  i32 center_y = GetMouseY() / grid->h;
-
-  if (center_x < 0 || center_x >= grid->nx || center_y < 0 ||
-      center_y >= grid->ny) {
+void act_on_grid(Grid *grid, i32 x, i32 y, i32 radius, u32 current_color) {
+  if (x < 0 || x >= grid->nx || y < 0 || y >= grid->ny) {
     return;
   }
 
@@ -109,14 +104,13 @@ void act_on_grid(Grid *grid, i32 radius, u32 current_color) {
     return;
   }
 
-  for (i32 y = -radius; y < radius + 1; y++) {
-    for (i32 x = -radius; x < radius + 1; x++) {
-      if (x * x + y * y <= radius * radius) {
-        i32 px = center_x + x;
-        i32 py = center_y + y;
+  for (i32 dy = -radius; dy < radius + 1; dy++) {
+    for (i32 dx = -radius; dx < radius + 1; dx++) {
+      if (dx * dx + dy * dy <= radius * radius) {
+        i32 px = x + dx;
+        i32 py = y + dy;
         if (px >= 0 && px < grid->nx && py >= 0 && py < grid->ny) {
-          // *_cell_at(grid->read, grid->nx, center_x + x, center_y + y) = cell;
-          *cell_at(grid->write, grid->nx, center_x + x, center_y + y) = cell;
+          *cell_at(grid->write, grid->nx, x + dx, y + dy) = cell;
         }
       }
     }
@@ -210,7 +204,7 @@ i32 main(void) {
 
   i32 nx = window_width / cell_w;
   i32 ny = window_height / cell_h;
-  Grid grid = new_grid(nx, ny, cell_w, cell_h);
+  Grid grid = new_grid(nx, ny);
   u32 color_idx = 0;
   TraceLog(LOG_INFO, "[init] nx: %d | ny: %d | w: %d | h: %d | ar: %d", nx, ny,
            cell_w, cell_h, brush_radius);
@@ -266,9 +260,12 @@ i32 main(void) {
       show_brush_for = brush_show_frames;
     }
 
-    memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
+    i32 mouse_x = GetMouseX();
+    i32 mouse_y = GetMouseY();
 
-    act_on_grid(&grid, brush_radius, color_idx);
+    memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
+    act_on_grid(&grid, mouse_x / cell_w, mouse_y / cell_h, brush_radius,
+                color_idx);
     if (!pause_update) {
       update_grid(&grid);
     }
@@ -285,7 +282,7 @@ i32 main(void) {
       DrawTexturePro(texture, source_rect, dest_rect, (Vector2){0, 0}, 0,
                      WHITE);
       if (show_brush_for > 0) {
-        DrawCircle(GetMouseX(), GetMouseY(), (f32)(brush_radius * cell_w),
+        DrawCircle(mouse_x, mouse_y, (f32)(brush_radius * cell_w),
                    g_colors[color_idx]);
         show_brush_for--;
       }
