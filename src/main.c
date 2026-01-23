@@ -26,7 +26,7 @@ typedef struct {
   u32 color_idx; // valid only if filled
 } Cell;
 
-global const Cell g_empty_cell = {.state = CELL_STATE_EMPTY, .color_idx = 0.};
+global const Cell g_empty_cell = {.state = CELL_STATE_EMPTY, .color_idx = 0};
 
 typedef struct {
   Cell *write;
@@ -67,15 +67,13 @@ void cleanup_grid(Grid *grid) {
   free(grid->write);
 }
 
-void draw_grid(Grid *grid) {
-  i32 width = grid->w;
-  i32 height = grid->h;
+void draw_grid(Color *pixels, Grid *grid) {
   for (i32 y = 0; y < grid->ny; y++) {
     for (i32 x = 0; x < grid->nx; x++) {
       Cell cell = *(grid->read + (grid->nx * y + x));
-      DrawRectangle(x * width, y * height, width, height,
-                    cell.state == CELL_STATE_EMPTY ? g_color_empty
-                                                   : g_colors[cell.color_idx]);
+      *(pixels + (grid->nx * y + x)) = cell.state == CELL_STATE_EMPTY
+                                           ? g_color_empty
+                                           : g_colors[cell.color_idx];
     }
   }
 }
@@ -173,7 +171,8 @@ i32 main(void) {
   const i32 window_height = 800, window_width = 1200;
   InitWindow(window_width, window_height, "fallingsand");
   SetExitKey(KEY_ESCAPE);
-  SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
+  // i32 refresh_rate = GetMonitorRefreshRate(GetCurrentMonitor());
+  SetTargetFPS(240);
 
   i32 grid_h = 2, grid_w = 2;
   i32 nx = window_width / grid_w;
@@ -185,6 +184,20 @@ i32 main(void) {
            grid_w, grid_h, action_radius);
 
   Cell *temp;
+  Color *pixels = malloc((u32)nx * (u32)ny * sizeof(Color));
+  Image img = {.data = pixels,
+               .width = nx,
+               .height = ny,
+               .mipmaps = 1,
+               .format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8};
+  Texture2D texture = LoadTextureFromImage(img);
+
+  const Rectangle source_rect = {
+      .x = 0.0f, .y = 0.0f, .width = (f32)nx, .height = (f32)ny};
+  const Rectangle dest_rect = {.x = 0.0f,
+                               .y = 0.0f,
+                               .width = (f32)window_width,
+                               .height = (f32)window_height};
   while (!WindowShouldClose()) {
     if (IsKeyPressed(KEY_SPACE)) {
       color_idx = (color_idx + 1) % NUM_COLORS;
@@ -192,20 +205,27 @@ i32 main(void) {
 
     memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
 
+    act_on_grid(&grid, action_radius, color_idx);
+    update_grid(&grid);
+
+    temp = grid.read;
+    grid.read = grid.write;
+    grid.write = temp;
+    draw_grid(pixels, &grid);
+    UpdateTexture(texture, pixels);
+
     BeginDrawing();
     {
       ClearBackground(BLACK);
-      act_on_grid(&grid, action_radius, color_idx);
-      update_grid(&grid);
-
-      temp = grid.read;
-      grid.read = grid.write;
-      grid.write = temp;
-      draw_grid(&grid);
+      DrawTexturePro(texture, source_rect, dest_rect, (Vector2){0, 0}, 0,
+                     WHITE);
+      DrawFPS(10, 10);
     }
     EndDrawing();
   }
 
   cleanup_grid(&grid);
+  UnloadTexture(texture);
+  UnloadImage(img);
   return 0;
 }
