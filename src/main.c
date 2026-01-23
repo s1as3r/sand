@@ -7,18 +7,17 @@
 #include "base.h"
 // clang-format on
 
-#define NUM_COLORS 5
 #define MAX_BRUSH_RADIUS 20
 
-// clang-format off
-global const Color g_colors[NUM_COLORS] = {
-  {  0, 228,  48, 255},
-  {255, 203,   0, 255},
-  {255, 109, 194, 255},
-  {102, 191, 255, 255},
-  {135,  60, 190, 255},
+global const Color g_colors[] = {
+    {130, 130, 130, 255}, {127, 106, 79, 255},  {80, 80, 80, 255},
+    {255, 109, 194, 255}, {0, 158, 47, 255},    {253, 249, 0, 255},
+    {200, 122, 255, 255}, {230, 41, 55, 255},   {190, 33, 55, 255},
+    {112, 31, 126, 255},  {0, 228, 48, 255},    {255, 203, 0, 255},
+    {0, 117, 44, 255},    {102, 191, 255, 255}, {255, 161, 0, 255},
+    {0, 121, 241, 255},   {0, 82, 172, 255},    {200, 200, 200, 255},
+    {211, 176, 131, 255}, {76, 63, 47, 255},    {135, 60, 190, 255},
 };
-// clang-format on
 global const Color g_color_empty = {0, 0, 0, 255};
 
 typedef enum { CELL_STATE_EMPTY = 0, CELL_STATE_FILLED } CellState;
@@ -241,9 +240,10 @@ i32 main(void) {
 
   bool pause_update = false;
   i32 show_brush_for = brush_show_frames;
+  u32 num_colors = array_count(g_colors);
   while (!WindowShouldClose()) {
     if (IsKeyPressed(KEY_C)) {
-      color_idx = (color_idx + 1) % NUM_COLORS;
+      color_idx = (color_idx + 1) % num_colors;
       show_brush_for = brush_show_frames;
     }
 
