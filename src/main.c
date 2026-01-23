@@ -9,6 +9,13 @@
 
 #define MAX_BRUSH_RADIUS 20
 
+// fake receipt font by 1001 fonts
+#if defined(PLATFORM_WEB)
+#define FONT_PATH "./font.otf"
+#else
+#define FONT_PATH "./assets/font.otf"
+#endif
+
 global const Color g_colors[] = {
     {130, 130, 130, 255}, {127, 106, 79, 255},  {80, 80, 80, 255},
     {255, 109, 194, 255}, {0, 158, 47, 255},    {253, 249, 0, 255},
@@ -178,7 +185,7 @@ i32 main(void) {
   InitWindow(window_width, window_height, "fallingsand");
 
   UiConfig ui = {
-      .font = LoadFont("assets/Fake Receipt.otf"),
+      .font = LoadFont(FONT_PATH),
       .font_size = 20,
       .font_spacing = 1,
       .text_color = WHITE,

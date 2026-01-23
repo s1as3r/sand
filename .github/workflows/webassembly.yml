@@ -84,7 +84,8 @@ jobs:
         copy /Y ${{ env.PROJECT_BUILD_PATH }}\${{ env.PROJECT_NAME }}.data ${{ env.PROJECT_RELEASE_PATH }}\${{ env.PROJECT_NAME }}.data
         copy /Y ${{ env.PROJECT_BUILD_PATH }}\${{ env.PROJECT_NAME }}.js ${{ env.PROJECT_RELEASE_PATH }}\${{ env.PROJECT_NAME }}.js
         copy /Y ${{ env.PROJECT_BUILD_PATH }}\${{ env.PROJECT_NAME }}.html ${{ env.PROJECT_RELEASE_PATH }}\index.html
-        copy /Y /R ${{ env.PROJECT_BUILD_PATH }}\..\assets ${{ env.PROJECT_RELEASE_PATH }}\
+        copy /Y ${{ env.PROJECT_BUILD_PATH }}\..\assets\icon.ico ${{ env.PROJECT_RELEASE_PATH }}\icon.ico
+        copy /Y ${{ env.PROJECT_BUILD_PATH }}\..\assets\font.otf ${{ env.PROJECT_RELEASE_PATH }}\font.otf
         copy /Y ${{ env.PROJECT_NAME }}\README.md ${{ env.PROJECT_RELEASE_PATH }}\README.md
         copy /Y ${{ env.PROJECT_NAME }}\LICENSE ${{ env.PROJECT_RELEASE_PATH }}\LICENSE
         dir ${{ env.PROJECT_RELEASE_PATH }}
