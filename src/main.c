@@ -24,6 +24,19 @@ global const Color g_color_empty = {0, 0, 0, 255};
 typedef enum { CELL_STATE_EMPTY = 0, CELL_STATE_FILLED } CellState;
 
 typedef struct {
+  Color text_color;
+  Font font;
+  f32 font_size;
+  f32 font_spacing;
+  f32 padding;
+} UiConfig;
+
+void draw_text(UiConfig *ui, const char *text, Vector2 pos) {
+  DrawTextEx(ui->font, text, pos, ui->font_size, ui->font_spacing,
+             ui->text_color);
+}
+
+typedef struct {
   CellState state;
   u32 color_idx; // valid only if filled
 } Cell;
@@ -170,6 +183,15 @@ void update_grid(Grid *grid) {
 i32 main(void) {
   const i32 window_height = 800, window_width = 1200;
   InitWindow(window_width, window_height, "fallingsand");
+
+  UiConfig ui = {
+      .font = LoadFont("assets/Fake Receipt.otf"),
+      .font_size = 20,
+      .font_spacing = 1,
+      .text_color = WHITE,
+      .padding = 10,
+  };
+
   SetExitKey(KEY_ESCAPE);
   i32 cell_h = 2, cell_w = 2;
   i32 brush_radius = 6;
@@ -207,13 +229,28 @@ i32 main(void) {
                                .y = 0.0f,
                                .width = (f32)window_width,
                                .height = (f32)window_height};
+
+  const char *ins_brush = "<- | ->:   inc/dec brush radius";
+  const char *ins_pause = "space  : (un)pause grid updates";
+  const char *ins_color = "c      :     change brush color";
+  const char *ins_erase = "mouse2 :                  erase";
+
+  const Vector2 ins_brush_w =
+      MeasureTextEx(ui.font, ins_brush, ui.font_size, ui.font_spacing);
+  const Vector2 ins_pause_w =
+      MeasureTextEx(ui.font, ins_pause, ui.font_size, ui.font_spacing);
+  const Vector2 ins_color_w =
+      MeasureTextEx(ui.font, ins_color, ui.font_size, ui.font_spacing);
+  const Vector2 ins_erase_w =
+      MeasureTextEx(ui.font, ins_erase, ui.font_size, ui.font_spacing);
+
   bool pause_update = false;
   while (!WindowShouldClose()) {
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (IsKeyPressed(KEY_C)) {
       color_idx = (color_idx + 1) % NUM_COLORS;
     }
 
-    if (IsKeyPressed(KEY_P)) {
+    if (IsKeyPressed(KEY_SPACE)) {
       pause_update = !pause_update;
     }
 
@@ -242,10 +279,23 @@ i32 main(void) {
       ClearBackground(BLACK);
       DrawTexturePro(texture, source_rect, dest_rect, (Vector2){0, 0}, 0,
                      WHITE);
-      DrawFPS(10, 10);
-      DrawText(TextFormat("br: %d %s", brush_radius,
-                          pause_update ? "| updates paused" : ""),
-               10, 30, 20, WHITE);
+      draw_text(&ui,
+                TextFormat("brush radius: %d %s", brush_radius,
+                           pause_update ? "| updates paused" : ""),
+                (Vector2){ui.padding, ui.padding});
+
+      draw_text(&ui, ins_brush,
+                (Vector2){window_width - ins_brush_w.x - ui.padding,
+                          ui.padding + 0 * ins_brush_w.y});
+      draw_text(&ui, ins_color,
+                (Vector2){window_width - ins_color_w.x - ui.padding,
+                          ui.padding + 1 * ins_brush_w.y});
+      draw_text(&ui, ins_pause,
+                (Vector2){window_width - ins_pause_w.x - ui.padding,
+                          ui.padding + 2 * ins_color_w.y});
+      draw_text(&ui, ins_erase,
+                (Vector2){window_width - ins_erase_w.x - ui.padding,
+                          ui.padding + 3 * ins_pause_w.y});
     }
     EndDrawing();
   }
