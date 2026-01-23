@@ -193,7 +193,7 @@ i32 main(void) {
 
   // clang-format off
   #if defined(PLATFORM_WEB)
-    rr = 60
+    target_fps = 60
     cell_h = 4;
     cell_w = 4;
     brush_radius = 3;
