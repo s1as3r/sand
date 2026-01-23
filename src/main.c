@@ -193,6 +193,10 @@ i32 main(void) {
 
   // clang-format off
   #if defined(PLATFORM_WEB)
+    FilePathList files = LoadDirectoryFiles(".");
+    for (u32 i = 0; i < files.count; i++) {
+      TraceLog(LOG_INFO, "%s", files.paths[i]);
+    }
     target_fps = 60;
     cell_h = 4;
     cell_w = 4;
