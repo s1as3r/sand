@@ -171,20 +171,23 @@ i32 main(void) {
   const i32 window_height = 800, window_width = 1200;
   InitWindow(window_width, window_height, "fallingsand");
   SetExitKey(KEY_ESCAPE);
-  // i32 refresh_rate = GetMonitorRefreshRate(GetCurrentMonitor());
   i32 cell_h = 2, cell_w = 2;
+  i32 action_radius = 6;
+
+  // clang-format off
   #if defined(PLATFORM_WEB)
     SetTargetFPS(60);
     cell_h = 4;
     cell_w = 4;
+    action_radius = 3;
   #else
     SetTargetFPS(240);
   #endif
+  // clang-format on
 
   i32 nx = window_width / cell_w;
   i32 ny = window_height / cell_h;
   Grid grid = new_grid(nx, ny, cell_w, cell_h);
-  i32 action_radius = 4;
   u32 color_idx = 0;
   TraceLog(LOG_INFO, "[init] nx: %d | ny: %d | w: %d | h: %d | ar: %d", nx, ny,
            cell_w, cell_h, action_radius);
