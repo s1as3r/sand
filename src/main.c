@@ -195,17 +195,18 @@ i32 main(void) {
   SetExitKey(KEY_ESCAPE);
   i32 cell_h = 2, cell_w = 2;
   i32 brush_radius = 6;
+  i32 target_fps = 240;
+  i32 brush_show_frames = target_fps / 2;
 
   // clang-format off
   #if defined(PLATFORM_WEB)
-    SetTargetFPS(60);
+    rr = 60
     cell_h = 4;
     cell_w = 4;
     brush_radius = 3;
-  #else
-    SetTargetFPS(240);
   #endif
   // clang-format on
+  SetTargetFPS(target_fps);
 
   i32 nx = window_width / cell_w;
   i32 ny = window_height / cell_h;
@@ -245,9 +246,11 @@ i32 main(void) {
       MeasureTextEx(ui.font, ins_erase, ui.font_size, ui.font_spacing);
 
   bool pause_update = false;
+  i32 show_brush_for = brush_show_frames;
   while (!WindowShouldClose()) {
     if (IsKeyPressed(KEY_C)) {
       color_idx = (color_idx + 1) % NUM_COLORS;
+      show_brush_for = brush_show_frames;
     }
 
     if (IsKeyPressed(KEY_SPACE)) {
@@ -256,9 +259,11 @@ i32 main(void) {
 
     if (IsKeyPressed(KEY_RIGHT) && brush_radius < MAX_BRUSH_RADIUS) {
       brush_radius++;
+      show_brush_for = brush_show_frames;
     }
     if (IsKeyPressed(KEY_LEFT) && brush_radius > 0) {
       brush_radius--;
+      show_brush_for = brush_show_frames;
     }
 
     memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
@@ -279,6 +284,11 @@ i32 main(void) {
       ClearBackground(BLACK);
       DrawTexturePro(texture, source_rect, dest_rect, (Vector2){0, 0}, 0,
                      WHITE);
+      if (show_brush_for > 0) {
+        DrawCircle(GetMouseX(), GetMouseY(), (f32)(brush_radius * cell_w),
+                   g_colors[color_idx]);
+        show_brush_for--;
+      }
       draw_text(&ui,
                 TextFormat("brush radius: %d %s", brush_radius,
                            pause_update ? "| updates paused" : ""),
