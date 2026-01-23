@@ -207,15 +207,21 @@ i32 main(void) {
                                .y = 0.0f,
                                .width = (f32)window_width,
                                .height = (f32)window_height};
+  bool pause_update = false;
   while (!WindowShouldClose()) {
     if (IsKeyPressed(KEY_SPACE)) {
       color_idx = (color_idx + 1) % NUM_COLORS;
+    }
+    if (IsKeyPressed(KEY_P)) {
+      pause_update = !pause_update;
     }
 
     memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
 
     act_on_grid(&grid, action_radius, color_idx);
-    update_grid(&grid);
+    if (!pause_update) {
+      update_grid(&grid);
+    }
 
     temp = grid.read;
     grid.read = grid.write;
