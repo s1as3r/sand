@@ -74,6 +74,7 @@ jobs:
                   -sUSE_GLFW=3 ^
                   -sASYNCIFY ^
                   --shell-file minshell.html ^
+                  --preload-file ../assets/font.otf@font.otf ^
                   -DPLATFORM_WEB
       shell: cmd
   
@@ -85,7 +86,6 @@ jobs:
         copy /Y ${{ env.PROJECT_BUILD_PATH }}\${{ env.PROJECT_NAME }}.js ${{ env.PROJECT_RELEASE_PATH }}\${{ env.PROJECT_NAME }}.js
         copy /Y ${{ env.PROJECT_BUILD_PATH }}\${{ env.PROJECT_NAME }}.html ${{ env.PROJECT_RELEASE_PATH }}\index.html
         copy /Y ${{ env.PROJECT_BUILD_PATH }}\..\assets\icon.ico ${{ env.PROJECT_RELEASE_PATH }}\icon.ico
-        copy /Y ${{ env.PROJECT_BUILD_PATH }}\..\assets\font.otf ${{ env.PROJECT_RELEASE_PATH }}\font.otf
         copy /Y ${{ env.PROJECT_NAME }}\README.md ${{ env.PROJECT_RELEASE_PATH }}\README.md
         copy /Y ${{ env.PROJECT_NAME }}\LICENSE ${{ env.PROJECT_RELEASE_PATH }}\LICENSE
         dir ${{ env.PROJECT_RELEASE_PATH }}
