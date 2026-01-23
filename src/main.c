@@ -37,16 +37,8 @@ typedef struct {
   i32 w, h;
 } Grid;
 
-inline Cell *_cell_at(Cell *cells, i32 nx, i32 x, i32 y) {
+inline Cell *cell_at(Cell *cells, i32 nx, i32 x, i32 y) {
   return (cells + (y * nx) + x);
-}
-
-inline Cell get_cell(Grid *grid, i32 x, i32 y) {
-  return *(_cell_at(grid->read, grid->nx, x, y));
-}
-
-inline void set_cell(Grid *grid, i32 x, i32 y, Cell cell) {
-  *_cell_at(grid->write, grid->nx, x, y) = cell;
 }
 
 Grid new_grid(i32 nx, i32 ny, i32 w, i32 h) {
@@ -57,8 +49,8 @@ Grid new_grid(i32 nx, i32 ny, i32 w, i32 h) {
 
   for (i32 y = 0; y < ny; y++) {
     for (i32 x = 0; x < nx; x++) {
-      *_cell_at(grid.read, grid.nx, x, y) = g_empty_cell;
-      *_cell_at(grid.write, grid.nx, x, y) = g_empty_cell;
+      *cell_at(grid.read, grid.nx, x, y) = g_empty_cell;
+      *cell_at(grid.write, grid.nx, x, y) = g_empty_cell;
     }
   }
   return grid;
@@ -111,7 +103,7 @@ void act_on_grid(Grid *grid, i32 radius, u32 current_color) {
         i32 py = center_y + y;
         if (px >= 0 && px < grid->nx && py >= 0 && py < grid->ny) {
           // *_cell_at(grid->read, grid->nx, center_x + x, center_y + y) = cell;
-          *_cell_at(grid->write, grid->nx, center_x + x, center_y + y) = cell;
+          *cell_at(grid->write, grid->nx, center_x + x, center_y + y) = cell;
         }
       }
     }
@@ -119,10 +111,11 @@ void act_on_grid(Grid *grid, i32 radius, u32 current_color) {
 }
 
 bool _left_update_grid(Grid *grid, i32 x, i32 y, u32 color_idx) {
-  if (x - 1 >= 0 && get_cell(grid, x - 1, y + 1).state == CELL_STATE_EMPTY) {
-    set_cell(grid, x, y, g_empty_cell);
-    set_cell(grid, x - 1, y + 1,
-             (Cell){.color_idx = color_idx, .state = CELL_STATE_FILLED});
+  if (x - 1 >= 0 &&
+      cell_at(grid->read, grid->nx, x - 1, y + 1)->state == CELL_STATE_EMPTY) {
+    *cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
+    *cell_at(grid->write, grid->nx, x - 1, y + 1) =
+        (Cell){.color_idx = color_idx, .state = CELL_STATE_FILLED};
     return true;
   }
   return false;
@@ -130,10 +123,10 @@ bool _left_update_grid(Grid *grid, i32 x, i32 y, u32 color_idx) {
 
 bool _right_update_grid(Grid *grid, i32 x, i32 y, u32 color_idx) {
   if (x + 1 < grid->nx &&
-      get_cell(grid, x + 1, y + 1).state == CELL_STATE_EMPTY) {
-    set_cell(grid, x, y, g_empty_cell);
-    set_cell(grid, x + 1, y + 1,
-             (Cell){.color_idx = color_idx, .state = CELL_STATE_FILLED});
+      cell_at(grid->read, grid->nx, x + 1, y + 1)->state == CELL_STATE_EMPTY) {
+    *cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
+    *cell_at(grid->write, grid->nx, x + 1, y + 1) =
+        (Cell){.color_idx = color_idx, .state = CELL_STATE_FILLED};
     return true;
   }
   return false;
@@ -143,7 +136,7 @@ void update_grid(Grid *grid) {
   Cell cell;
   for (i32 y = grid->ny - 2; y >= 0; y--) {
     for (i32 x = 0; x < grid->nx; x++) {
-      cell = get_cell(grid, x, y);
+      cell = *cell_at(grid->read, grid->nx, x, y);
       if (cell.state == CELL_STATE_EMPTY) {
         continue;
       }
@@ -153,10 +146,10 @@ void update_grid(Grid *grid) {
       // avoid the issues with cells right on top of each other. if we check the
       // read buffer, it would try to move the cell diagonally which we dont
       // want.
-      if (_cell_at(grid->write, grid->nx, x, y + 1)->state ==
+      if (cell_at(grid->write, grid->nx, x, y + 1)->state ==
           CELL_STATE_EMPTY) {
-        *_cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
-        *_cell_at(grid->write, grid->nx, x, y + 1) = cell;
+        *cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
+        *cell_at(grid->write, grid->nx, x, y + 1) = cell;
         continue;
       }
 
