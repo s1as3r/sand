@@ -124,7 +124,7 @@ void act_on_grid(Grid *grid, i32 x, i32 y, i32 radius, u32 current_color) {
 }
 
 bool _left_update_grid(Grid *grid, i32 x, i32 y, u32 color_idx) {
-  if (x - 1 >= 0 &&
+  if ((x - 1 >= 0) &&
       cell_at(grid->read, grid->nx, x - 1, y + 1)->state == CELL_STATE_EMPTY) {
     *cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
     *cell_at(grid->write, grid->nx, x - 1, y + 1) =
@@ -135,7 +135,7 @@ bool _left_update_grid(Grid *grid, i32 x, i32 y, u32 color_idx) {
 }
 
 bool _right_update_grid(Grid *grid, i32 x, i32 y, u32 color_idx) {
-  if (x + 1 < grid->nx &&
+  if ((x + 1 < grid->nx) &&
       cell_at(grid->read, grid->nx, x + 1, y + 1)->state == CELL_STATE_EMPTY) {
     *cell_at(grid->write, grid->nx, x, y) = g_empty_cell;
     *cell_at(grid->write, grid->nx, x + 1, y + 1) =
@@ -249,7 +249,7 @@ i32 main(void) {
   i32 show_brush_for = brush_show_frames;
   u32 num_colors = array_count(g_colors);
   while (!WindowShouldClose()) {
-    if (IsKeyPressed(KEY_C)) {
+    if (IsKeyPressed(KEY_C) || IsKeyPressedRepeat(KEY_C)) {
       color_idx = (color_idx + 1) % num_colors;
       show_brush_for = brush_show_frames;
     }
@@ -258,11 +258,14 @@ i32 main(void) {
       pause_update = !pause_update;
     }
 
-    if (IsKeyPressed(KEY_RIGHT) && brush_radius < MAX_BRUSH_RADIUS) {
+    if ((IsKeyPressed(KEY_RIGHT) || IsKeyPressedRepeat(KEY_RIGHT)) &&
+        brush_radius < MAX_BRUSH_RADIUS) {
       brush_radius++;
       show_brush_for = brush_show_frames;
     }
-    if (IsKeyPressed(KEY_LEFT) && brush_radius > 0) {
+
+    if ((IsKeyPressed(KEY_LEFT) || IsKeyPressedRepeat(KEY_LEFT)) &&
+        brush_radius > 0) {
       brush_radius--;
       show_brush_for = brush_show_frames;
     }
