@@ -226,10 +226,6 @@ i32 main(void) {
 
   const Rectangle source_rect = {
       .x = 0.0f, .y = 0.0f, .width = (f32)nx, .height = (f32)ny};
-  const Rectangle dest_rect = {.x = 0.0f,
-                               .y = 0.0f,
-                               .width = (f32)window_width,
-                               .height = (f32)window_height};
 
   const char *ins_brush = "<- | ->:   inc/dec brush radius";
   const char *ins_pause = "space  : (un)pause grid updates";
@@ -270,12 +266,13 @@ i32 main(void) {
       show_brush_for = brush_show_frames;
     }
 
-    i32 mouse_x = GetMouseX();
-    i32 mouse_y = GetMouseY();
+    i32 screen_w = GetScreenWidth();
+    i32 screen_h = GetScreenHeight();
+    i32 mouse_x = nx * GetMouseX() / screen_w;
+    i32 mouse_y = ny * GetMouseY() / screen_h;
 
     memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
-    act_on_grid(&grid, mouse_x / cell_w, mouse_y / cell_h, brush_radius,
-                color_idx);
+    act_on_grid(&grid, mouse_x, mouse_y, brush_radius, color_idx);
     if (!pause_update) {
       update_grid(&grid);
     }
@@ -289,8 +286,12 @@ i32 main(void) {
     BeginDrawing();
     {
       ClearBackground(BLACK);
-      DrawTexturePro(texture, source_rect, dest_rect, (Vector2){0, 0}, 0,
-                     WHITE);
+      DrawTexturePro(texture, source_rect,
+                     (Rectangle){.x = 0.0f,
+                                 .y = 0.0f,
+                                 .width = (f32)screen_w,
+                                 .height = (f32)screen_h},
+                     (Vector2){0, 0}, 0, WHITE);
       if (show_brush_for > 0) {
         DrawCircle(mouse_x, mouse_y, (f32)(brush_radius * cell_w),
                    g_colors[color_idx]);
