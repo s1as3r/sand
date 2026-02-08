@@ -303,16 +303,16 @@ i32 main(void) {
                 (Vector2){ui.padding, ui.padding});
 
       draw_text(&ui, ins_brush,
-                (Vector2){window_width - ins_brush_w.x - ui.padding,
+                (Vector2){(f32)screen_w - ins_brush_w.x - ui.padding,
                           ui.padding + 0 * ins_brush_w.y});
       draw_text(&ui, ins_color,
-                (Vector2){window_width - ins_color_w.x - ui.padding,
+                (Vector2){(f32)screen_w - ins_color_w.x - ui.padding,
                           ui.padding + 1 * ins_brush_w.y});
       draw_text(&ui, ins_pause,
-                (Vector2){window_width - ins_pause_w.x - ui.padding,
+                (Vector2){(f32)screen_w - ins_pause_w.x - ui.padding,
                           ui.padding + 2 * ins_color_w.y});
       draw_text(&ui, ins_erase,
-                (Vector2){window_width - ins_erase_w.x - ui.padding,
+                (Vector2){(f32)screen_w - ins_erase_w.x - ui.padding,
                           ui.padding + 3 * ins_pause_w.y});
     }
     EndDrawing();
