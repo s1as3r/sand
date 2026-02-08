@@ -266,13 +266,14 @@ i32 main(void) {
       show_brush_for = brush_show_frames;
     }
 
-    i32 screen_w = GetScreenWidth();
-    i32 screen_h = GetScreenHeight();
-    i32 mouse_x = nx * GetMouseX() / screen_w;
-    i32 mouse_y = ny * GetMouseY() / screen_h;
+    f32 screen_w = (f32)GetScreenWidth();
+    f32 screen_h = (f32)GetScreenHeight();
+    f32 mouse_x_01 = (f32)GetMouseX() / screen_w;
+    f32 mouse_y_01 = (f32)GetMouseY() / screen_h;
 
     memcpy(grid.write, grid.read, sizeof(Cell) * (u32)nx * (u32)ny);
-    act_on_grid(&grid, mouse_x, mouse_y, brush_radius, color_idx);
+    act_on_grid(&grid, (i32)(mouse_x_01 * (f32)grid.nx),
+                (i32)(mouse_y_01 * (f32)grid.ny), brush_radius, color_idx);
     if (!pause_update) {
       update_grid(&grid);
     }
@@ -293,7 +294,8 @@ i32 main(void) {
                                  .height = (f32)screen_h},
                      (Vector2){0, 0}, 0, WHITE);
       if (show_brush_for > 0) {
-        DrawCircle(mouse_x, mouse_y, (f32)(brush_radius * cell_w),
+        DrawCircle((i32)(mouse_x_01 * screen_w), (i32)(mouse_y_01 * screen_h),
+                   (f32)brush_radius * (screen_w / (f32)grid.nx),
                    g_colors[color_idx]);
         show_brush_for--;
       }
