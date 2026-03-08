@@ -181,7 +181,7 @@ void update_grid(Grid *grid) {
 }
 
 i32 main(void) {
-  const i32 window_height = 800, window_width = 1200;
+  const i32 window_height = 900, window_width = 1600;
   InitWindow(window_width, window_height, "fallingsand");
 
   UiConfig ui = {
